@@ -7,7 +7,7 @@ def get_teams(api_token):
     try:
         conn = http.client.HTTPSConnection("api.sportmonks.com")
         # Check the correct endpoint for fetching teams
-        conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
+        conn.request("GET", f"/api/v3/football/teams?api_token={sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt}")
         res = conn.getresponse()
         
         if res.status == 200:
