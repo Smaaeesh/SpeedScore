@@ -35,7 +35,6 @@ def get_teams():
         return {}
 
 # Function to get win streak data for a specific team
-# Function to get win streak data for a specific team
 def get_win_streak_data(team_id, season_year):
     url = f"{base_url}teams/{team_id}/matches?season={season_year}"
     headers = {"X-Auth-Token": api_key}
@@ -45,41 +44,29 @@ def get_win_streak_data(team_id, season_year):
         matches = data.get('matches', [])
         
         if matches:
-            dates = []
-            streak_data = []
+            dates = [pd.to_datetime(match['utcDate']) for match in matches]
+            results = [
+                1 if match['score']['fullTime'].get('home', 0) > match['score']['fullTime'].get('away', 0) else 0
+                for match in matches
+            ]
+            
+            win_streaks = []
             current_streak = 0
-
-            for match in matches:
-                date = pd.to_datetime(match['utcDate'])
-                home_score = match['score']['fullTime'].get('home', 0)
-                away_score = match['score']['fullTime'].get('away', 0)
-                
-                # Handle cases where scores might be None
-                if home_score is None:
-                    home_score = 0
-                if away_score is None:
-                    away_score = 0
-                
-                result = home_score > away_score  # Home team wins if score is greater
-                
-                if result:
+            for result in results:
+                if result == 1:
                     current_streak += 1
                 else:
-                    if current_streak > 0:
-                        streak_data.append(current_streak)
-                        current_streak = 0
-                    dates.append(date)
-
-            if current_streak > 0:
-                streak_data.append(current_streak)
+                    win_streaks.append(current_streak)
+                    current_streak = 0
+            win_streaks.append(current_streak)  # Append final streak
             
-            # If there are more dates than streaks, fill the missing streaks with 0
-            if len(dates) > len(streak_data):
-                streak_data += [0] * (len(dates) - len(streak_data))
+            # Ensure all arrays are the same length
+            if len(dates) != len(win_streaks):
+                dates = dates[:len(win_streaks)]  # Truncate dates to match length of win_streaks
 
             return pd.DataFrame({
                 'Date': dates,
-                'Streak': streak_data
+                'Streak': win_streaks
             }).set_index('Date')
         else:
             return pd.DataFrame(columns=['Date', 'Streak'])
@@ -106,6 +93,10 @@ if selected_team:
     
     if team_id:
         win_streak_data = get_win_streak_data(team_id, season_year)
+        
+        # Display the DataFrame to check its contents
+        st.write("Win Streak Data:")
+        st.write(win_streak_data)
         
         if not win_streak_data.empty:
             st.write(f"### Win Streak Data for {selected_team} ({season_year})")
