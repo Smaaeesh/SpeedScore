@@ -6,12 +6,9 @@ import json
 def get_teams(api_token):
     try:
         conn = http.client.HTTPSConnection("api.sportmonks.com")
+        # Check the correct endpoint for fetching teams
         conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
         res = conn.getresponse()
-        
-        # Debugging output
-        st.write(f"Status Code: {res.status}")
-        st.write(f"Response Reason: {res.reason}")
         
         if res.status == 200:
             data = res.read().decode("utf-8")
@@ -37,10 +34,6 @@ def get_scores(team_id, mode, api_token):
         conn.request("GET", url)
         res = conn.getresponse()
         
-        # Debugging output
-        st.write(f"Status Code: {res.status}")
-        st.write(f"Response Reason: {res.reason}")
-        
         if res.status == 200:
             data = res.read().decode("utf-8")
             scores_data = json.loads(data)
@@ -55,15 +48,13 @@ def get_scores(team_id, mode, api_token):
 # Streamlit app
 st.title("Live Sports Score")
 
-# Use the API token correctly
-api_token = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"  # API token should be a string
+# Dropdown menu to select team
+api_token = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"  # Updated API token
 teams = get_teams(api_token)
-
 if teams:
     team_options = {name: id for id, name in teams}
     team_name = st.selectbox("Select your team", list(team_options.keys()))
 else:
-    st.write("No teams available or failed to fetch teams.")
     team_name = None
 
 # Buttons to select mode
