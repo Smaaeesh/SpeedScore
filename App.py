@@ -36,7 +36,6 @@ def get_teams():
 
 # Function to fetch and display real-time scores
 def fetch_scores():
-    # Placeholder for API call to get scores
     url = f"{base_url}matches/"
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
@@ -49,7 +48,6 @@ def fetch_scores():
 
 # Function to get win streak data for a specific team
 def get_win_streak(team_id):
-    # Placeholder for API call to get win streak data
     url = f"{base_url}matches/?teamId={team_id}&season=2023"  # Adjust for the season
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
@@ -72,24 +70,15 @@ if selected_teams:
     for team in selected_teams:
         st.write(f"Scores for {team}: {scores.get(team, 'No data available')}")
 
-# Graph showing team’s win streak status
-import pandas as pd
-import matplotlib.pyplot as plt
-import requests
-
-import pandas as pd
-import plotly.graph_objects as go
-import requests
-
+# Function to fetch win streak data
 def fetch_win_streak_data(team_name):
-    # Replace with actual API endpoint and logic to fetch data
-    url = f"https://api.football-data.org/v4/matches?team={team_name}&dateFrom={pd.Timestamp.now() - pd.DateOffset(years=1)}&dateTo={pd.Timestamp.now()}"
-    headers = {"Authorization": f"Bearer {api_key}"}
+    url = f"{base_url}matches?team={team_name}&dateFrom={pd.Timestamp.now() - pd.DateOffset(years=1)}&dateTo={pd.Timestamp.now()}"
+    headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
     data = response.json()
     
     # Process data into a DataFrame
-    matches = data['matches']
+    matches = data.get('matches', [])
     win_streaks = pd.DataFrame({
         'Date': [pd.to_datetime(match['utcDate']) for match in matches],
         'Result': [match['score']['fullTime']['home'] > match['score']['fullTime']['away'] for match in matches]
@@ -97,8 +86,8 @@ def fetch_win_streak_data(team_name):
     
     return win_streaks
 
+# Plotting the win streak data using Streamlit's built-in chart
 def plot_win_streak(team_name):
-    # Fetch win streak data
     win_streaks = fetch_win_streak_data(team_name)
     
     # Filter for the last year
@@ -109,26 +98,12 @@ def plot_win_streak(team_name):
     win_streaks['Date'] = pd.to_datetime(win_streaks['Date'])
     
     # Plot the data
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=win_streaks['Date'],
-        y=win_streaks['Result'].astype(int),  # Convert boolean to integer (1/0)
-        mode='lines+markers',
-        name=f"Win Streak for {team_name}"
-    ))
-    
-    fig.update_layout(
-        title=f"Win Streak for {team_name}",
-        xaxis_title='Date',
-        yaxis_title='Win (1) / Loss (0)',
-        xaxis=dict(showline=True, showgrid=True),
-        yaxis=dict(showline=True, showgrid=True)
-    )
-    
-    st.plotly_chart(fig)
-
-
-
+    if not win_streaks.empty:
+        st.line_chart(
+            win_streaks.set_index('Date')['Result'].astype(int)  # Convert boolean to integer (1/0)
+        )
+    else:
+        st.write("No win streak data available for the selected team.")
 
 if selected_teams:
     selected_team_for_streak = st.selectbox("Select a team to view win streak:", selected_teams)
