@@ -42,8 +42,12 @@ def get_recent_competition_id():
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         competitions = response.json().get("competitions", [])
-        most_recent = sorted(competitions, key=lambda x: x['currentSeason']['startDate'], reverse=True)[0]
-        return most_recent['id']
+        if competitions:
+            most_recent = sorted(competitions, key=lambda x: x['currentSeason']['startDate'], reverse=True)[0]
+            return most_recent['id']
+        else:
+            st.error("No competitions available.")
+            return None
     else:
         st.error("Failed to fetch competitions from API.")
         return None
@@ -54,7 +58,9 @@ def get_top_players(competition_id, season_year):
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        players = response.json().get("scorers", [])
+        data = response.json()
+        st.write(f"API Response Data: {data}")  # Debugging line
+        players = data.get("scorers", [])
         return players
     else:
         st.error("Failed to fetch top players from API.")
