@@ -3,7 +3,7 @@ import requests
 import pydeck as pdk
 import pandas as pd
 
-api_key = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"
+api_key = "8fce32c29bc344c9b3380c526a43d768"
 
 # Configure the page
 st.set_page_config(page_title="Sports Score Tracker", page_icon="🏆")
@@ -22,27 +22,29 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-# Function to fetch teams from SportMonks API
-def fetch_teams(api_token):
-    url = f"https://api.sportmonks.com/api/v3/football/teams?api_token={api_token}"
-    response = requests.get(url)
+# Function to fetch teams from Football-Data API
+def get_teams():
+    url = "https://api.football-data.org/v4/teams/"
+    headers = {"X-Auth-Token": api_key}
+    response = requests.get(url, headers=headers)
     if response.status_code == 200:
         teams_data = response.json()
-        teams = [team['team_name'] for team in teams_data['data']]
+        teams = [team['name'] for team in teams_data['teams']]
         return teams
     else:
-        st.error("Failed to fetch teams from API.")
+        st.error("Failed to fetch teams.")
         return []
 
-# Fetch teams and populate the selection menu
-team_options = fetch_teams(api_key)
+# Sidebar for team selection
+team_options = get_teams()
 selected_teams = st.multiselect("Select teams to track:", team_options)
 
 # Function to fetch and display real-time scores
 def fetch_scores():
     # Placeholder for API call to get scores
-    url = f"https://api.sportmonks.com/v3/fixtures?api_token={api_key}"
-    response = requests.get(url)
+    url = f"https://api.football-data.org/v4/matches"
+    headers = {"X-Auth-Token": api_key}
+    response = requests.get(url, headers=headers)
     scores = response.json()  # Replace with actual API response handling
     return scores
 
@@ -60,7 +62,7 @@ def plot_win_streak(team_name):
         'Date': pd.date_range(start='2024-01-01', periods=10),
         'Wins': [1, 1, 0, 1, 1, 1, 0, 1, 1, 1]  # Example data
     })
-    st.line_chart(win_streaks.set_index('Date'))
+    st.line_chart(win_streaks.set_index('Date')['Wins'])
 
 if selected_teams:
     selected_team_for_streak = st.selectbox("Select a team to view win streak:", selected_teams)
