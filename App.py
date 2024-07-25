@@ -73,28 +73,45 @@ if selected_teams:
         st.write(f"Scores for {team}: {scores.get(team, 'No data available')}")
 
 # Graph showing team’s win streak status
+import pandas as pd
+import matplotlib.pyplot as plt
+import requests
+
+def fetch_win_streak_data(team_name):
+    # Replace with actual API endpoint and logic to fetch data
+    url = f"https://api.football-data.org/v4/matches?team={team_name}&dateFrom={pd.Timestamp.now() - pd.DateOffset(years=1)}&dateTo={pd.Timestamp.now()}"
+    headers = {"Authorization": f"Bearer {api_key}"}
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    
+    # Process data into a DataFrame
+    matches = data['matches']
+    win_streaks = pd.DataFrame({
+        'Date': [pd.to_datetime(match['utcDate']) for match in matches],
+        'Result': [match['score']['fullTime']['home'] == match['score']['fullTime']['away'] for match in matches]
+    })
+    
+    return win_streaks
+
 def plot_win_streak(team_name):
-    team_id = team_options.index(team_name) + 1  # Simplistic ID mapping, adjust as necessary
-    win_streaks = get_win_streak(team_id)
-    if not win_streaks.empty:
-        # Convert date to datetime and ensure it is timezone-naive
-        win_streaks['utcDate'] = pd.to_datetime(win_streaks['utcDate']).dt.tz_localize(None)
-        
-        # Filter data for the last year
-        one_year_ago = pd.to_datetime('today').normalize() - pd.DateOffset(years=1)
-        win_streaks = win_streaks[win_streaks['utcDate'] >= one_year_ago]
-        
-        if not win_streaks.empty:
-            # Plot the data
-            st.line_chart(
-                win_streaks[['utcDate', 'score']].set_index('utcDate'),
-                use_container_width=True
-            )
-            st.write(f"Win Streak Data for {team_name} over the Last Year")
-        else:
-            st.write("No win streak data available for the last year.")
-    else:
-        st.write("No win streak data available.")
+    # Fetch win streak data
+    win_streaks = fetch_win_streak_data(team_name)
+    
+    # Filter for the last year
+    one_year_ago = pd.Timestamp.now() - pd.DateOffset(years=1)
+    win_streaks = win_streaks[win_streaks['Date'] >= one_year_ago]
+    
+    # Ensure 'Date' column is in datetime format
+    win_streaks['Date'] = pd.to_datetime(win_streaks['Date'])
+    
+    # Plot the data
+    fig, ax = plt.subplots()
+    ax.plot(win_streaks['Date'], win_streaks['Result'], marker='o')
+    ax.set_title(f"Win Streak for {team_name}")
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Win (1) / Loss (0)')
+    st.pyplot(fig)
+
 
 
 if selected_teams:
