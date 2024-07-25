@@ -6,7 +6,6 @@ import json
 def get_teams(api_token):
     try:
         conn = http.client.HTTPSConnection("api.sportmonks.com")
-        # Check the correct endpoint for fetching teams
         conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
         res = conn.getresponse()
         
