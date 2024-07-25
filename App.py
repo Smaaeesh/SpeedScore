@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-import requests
-from datetime import datetime
+import random
+from datetime import datetime, timedelta
 
 api_key = "8fce32c29bc344c9b3380c526a43d768"
 base_url = "https://api.football-data.org/v4/"
@@ -35,74 +35,53 @@ def get_teams():
         st.error("Failed to fetch teams from API.")
         return {}
 
-# Function to get win streak data for a specific team
-def get_win_streak_data(team_id, season_year):
-    url = f"{base_url}teams/{team_id}/matches?season={season_year}"
-    headers = {"X-Auth-Token": api_key}
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        data = response.json()
-        matches = data.get('matches', [])
-        
-        if matches:
-            win_streaks = []
-            current_streak = 0
-            for match in matches:
-                home_score = match['score']['fullTime'].get('home', 0)
-                away_score = match['score']['fullTime'].get('away', 0)
-                
-                # Debugging output
-                st.write(f"Match Data: {match}")
-                
-                if home_score is None or away_score is None:
-                    st.warning("Incomplete score data in match.")
-                    continue
+# Function to simulate win streak data for a specific team
+def simulate_win_streak_data(season_year):
+    # Generate a date range for each month in the selected year
+    start_date = datetime(season_year, 1, 1)
+    end_date = datetime(season_year, 12, 31)
+    date_range = pd.date_range(start=start_date, end=end_date, freq='M')
 
-                result = 1 if home_score > away_score else 0
-                
-                if result == 1:
-                    current_streak += 1
-                else:
-                    win_streaks.append(current_streak)
-                    current_streak = 0
-            win_streaks.append(current_streak)  # Append final streak
-            return pd.DataFrame({
-                'Date': [pd.to_datetime(match['utcDate']) for match in matches],
-                'Streak': win_streaks
-            }).set_index('Date')
+    # Generate random win/loss/tie data
+    streaks = []
+    current_streak = 0
+
+    for _ in date_range:
+        result = random.choice(['win', 'loss', 'tie'])
+        
+        if result == 'win':
+            current_streak += 1
         else:
-            return pd.DataFrame(columns=['Date', 'Streak'])
-    else:
-        # Display detailed error information
-        st.error(f"Failed to fetch win streak data from API. Status code: {response.status_code}, Response: {response.text}")
-        return pd.DataFrame(columns=['Date', 'Streak'])
+            streaks.append(current_streak)
+            current_streak = 0
+    
+    streaks.append(current_streak)  # Append final streak
+    
+    # Create a DataFrame with simulated data
+    return pd.DataFrame({
+        'Date': date_range,
+        'Streak': streaks
+    }).set_index('Date')
 
 # Sidebar for team selection
 team_options = get_teams()
 selected_team = st.selectbox("Select a team to view win streak:", list(team_options.keys()))
 
-# Date input for selecting year with max_value set to today's date
-today = datetime.today().date()
-season_year = st.date_input("Select the season year", min_value=pd.to_datetime('2000-01-01'), max_value=today).year
+# Date input for selecting year
+season_year = st.date_input("Select the season year", min_value=pd.to_datetime('2000-01-01'), max_value=pd.to_datetime('2024-12-31')).year
 
 # Fetch and display win streak data
 if selected_team:
-    # Fetch team ID based on selected team name
-    team_id = team_options.get(selected_team)
+    # Simulate win streak data
+    win_streak_data = simulate_win_streak_data(season_year)
     
-    if team_id:
-        win_streak_data = get_win_streak_data(team_id, season_year)
+    if not win_streak_data.empty:
+        st.write(f"### Win Streak Data for {selected_team} ({season_year})")
         
-        if not win_streak_data.empty:
-            st.write(f"### Win Streak Data for {selected_team} ({season_year})")
-            
-            # Plot win streak data
-            st.line_chart(win_streak_data['Streak'])
-        else:
-            st.write(f"No win streak data available for {selected_team} in {season_year}.")
+        # Plot win streak data
+        st.line_chart(win_streak_data['Streak'])
     else:
-        st.error("Selected team not found.")
+        st.write(f"No win streak data available for {selected_team} in {season_year}.")
 
 # Email updates
 email = st.text_input("Enter your email for regular updates:")
