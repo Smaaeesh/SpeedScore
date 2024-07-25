@@ -6,6 +6,7 @@ import json
 def get_teams(api_token):
     try:
         conn = http.client.HTTPSConnection("api.sportmonks.com")
+        # Check the correct endpoint for fetching teams
         conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
         res = conn.getresponse()
         
@@ -50,13 +51,16 @@ st.title("Live Sports Score")
 # Dropdown menu to select team
 api_token = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"  # Updated API token
 teams = get_teams(api_token)
-team_options = {name: id for id, name in teams}
-team_name = st.selectbox("Select your team", list(team_options.keys()))
+if teams:
+    team_options = {name: id for id, name in teams}
+    team_name = st.selectbox("Select your team", list(team_options.keys()))
+else:
+    team_name = None
 
 # Buttons to select mode
 mode = st.radio("Select mode", ["Team vs. Team", "1 Team"])
 
-if st.button("Show Scores"):
+if st.button("Show Scores") and team_name:
     team_id = team_options[team_name]
     st.write(f"Selected Team ID: {team_id}")
     st.write(f"Selected Mode: {mode}")
