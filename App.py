@@ -77,6 +77,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import requests
 
+import pandas as pd
+import plotly.graph_objects as go
+import requests
+
 def fetch_win_streak_data(team_name):
     # Replace with actual API endpoint and logic to fetch data
     url = f"https://api.football-data.org/v4/matches?team={team_name}&dateFrom={pd.Timestamp.now() - pd.DateOffset(years=1)}&dateTo={pd.Timestamp.now()}"
@@ -88,7 +92,7 @@ def fetch_win_streak_data(team_name):
     matches = data['matches']
     win_streaks = pd.DataFrame({
         'Date': [pd.to_datetime(match['utcDate']) for match in matches],
-        'Result': [match['score']['fullTime']['home'] == match['score']['fullTime']['away'] for match in matches]
+        'Result': [match['score']['fullTime']['home'] > match['score']['fullTime']['away'] for match in matches]
     })
     
     return win_streaks
@@ -105,12 +109,24 @@ def plot_win_streak(team_name):
     win_streaks['Date'] = pd.to_datetime(win_streaks['Date'])
     
     # Plot the data
-    fig, ax = plt.subplots()
-    ax.plot(win_streaks['Date'], win_streaks['Result'], marker='o')
-    ax.set_title(f"Win Streak for {team_name}")
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Win (1) / Loss (0)')
-    st.pyplot(fig)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=win_streaks['Date'],
+        y=win_streaks['Result'].astype(int),  # Convert boolean to integer (1/0)
+        mode='lines+markers',
+        name=f"Win Streak for {team_name}"
+    ))
+    
+    fig.update_layout(
+        title=f"Win Streak for {team_name}",
+        xaxis_title='Date',
+        yaxis_title='Win (1) / Loss (0)',
+        xaxis=dict(showline=True, showgrid=True),
+        yaxis=dict(showline=True, showgrid=True)
+    )
+    
+    st.plotly_chart(fig)
+
 
 
 
