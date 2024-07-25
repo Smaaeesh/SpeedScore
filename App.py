@@ -7,7 +7,7 @@ api_key = "8fce32c29bc344c9b3380c526a43d768"
 base_url = "https://api.football-data.org/v4/"
 
 # Configure the page
-st.set_page_config(page_title="Football Score Tracker", page_icon="⚽️")
+st.set_page_config(page_title="Football Score Tracker", page_icon="O")
 
 # Title and header
 st.title("Football Score Tracker")
