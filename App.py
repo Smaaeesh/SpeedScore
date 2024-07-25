@@ -59,7 +59,6 @@ def get_top_players(competition_id, season_year):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         data = response.json()
-        st.write(f"API Response Data: {data}")  # Debugging line
         players = data.get("scorers", [])
         return players
     else:
