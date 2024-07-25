@@ -64,4 +64,55 @@ if st.button("Show Scores"):
         .animation-container {
             position: relative;
             width: 100%;
-          
+            height: 400px;
+            overflow: hidden;
+        }
+        .lightning {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 100px;
+            height: 200px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/0/0e/Lightning.svg') no-repeat center center;
+            background-size: cover;
+            transform: translateX(-50%);
+            animation: lightning 1s infinite;
+        }
+        .helmet {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/1/14/Football_helmet_2.svg') no-repeat center center;
+            background-size: cover;
+            animation: fly 1s forwards;
+        }
+        .helmet.left {
+            left: -100px;
+            animation-delay: 0s;
+        }
+        .helmet.right {
+            right: -100px;
+            animation-delay: 0s;
+        }
+        @keyframes lightning {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @keyframes fly {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(200px); }
+            100% { transform: translateX(100px); }
+        }
+        </style>
+        <div class="animation-container">
+            <div class="lightning"></div>
+            <div class="helmet left"></div>
+            <div class="helmet right"></div>
+        </div>
+        """
+        st.markdown(animation_html, unsafe_allow_html=True)
+        
+        # Fetch and display scores
+        scores = get_scores(team_id, mode, api_token)
+        st.write(scores)  # Adjust this to match your data format
