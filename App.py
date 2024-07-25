@@ -40,6 +40,7 @@ def get_win_streak_data(team_id, season_year):
     url = f"{base_url}teams/{team_id}/matches?season={season_year}"
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
+    
     if response.status_code == 200:
         data = response.json()
         matches = data.get('matches', [])
@@ -48,8 +49,16 @@ def get_win_streak_data(team_id, season_year):
             win_streaks = []
             current_streak = 0
             for match in matches:
-                home_score = match['score']['fullTime'].get('home', 0) or 0
-                away_score = match['score']['fullTime'].get('away', 0) or 0
+                home_score = match['score']['fullTime'].get('home', 0)
+                away_score = match['score']['fullTime'].get('away', 0)
+                
+                # Debugging output
+                st.write(f"Match Data: {match}")
+                
+                if home_score is None or away_score is None:
+                    st.warning("Incomplete score data in match.")
+                    continue
+
                 result = 1 if home_score > away_score else 0
                 
                 if result == 1:
@@ -65,7 +74,8 @@ def get_win_streak_data(team_id, season_year):
         else:
             return pd.DataFrame(columns=['Date', 'Streak'])
     else:
-        st.error("Failed to fetch win streak data from API.")
+        # Display detailed error information
+        st.error(f"Failed to fetch win streak data from API. Status code: {response.status_code}, Response: {response.text}")
         return pd.DataFrame(columns=['Date', 'Streak'])
 
 # Sidebar for team selection
