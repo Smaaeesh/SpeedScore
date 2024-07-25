@@ -47,8 +47,8 @@ def get_win_streak_data(team_id, season_year):
             win_streaks = []
             current_streak = 0
             for match in matches:
-                home_score = match['score']['fullTime'].get('home', 0)
-                away_score = match['score']['fullTime'].get('away', 0)
+                home_score = match['score']['fullTime'].get('home', 0) or 0
+                away_score = match['score']['fullTime'].get('away', 0) or 0
                 result = 1 if home_score > away_score else 0
                 
                 if result == 1:
