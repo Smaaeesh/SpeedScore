@@ -48,7 +48,7 @@ def get_scores(team_id, mode, api_token):
 st.title("Live Sports Score")
 
 # Dropdown menu to select team
-api_token = "YOUR_API_TOKEN"  # Replace with your actual API token
+api_token = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"  # Updated API token
 teams = get_teams(api_token)
 team_options = {name: id for id, name in teams}
 team_name = st.selectbox("Select your team", list(team_options.keys()))
