@@ -1,12 +1,17 @@
 import streamlit as st
-import requests
+import http.client
+import json
 
-# Function to fetch teams from SportMonks API
+# Function to fetch teams from SportMonks API using http.client
 def get_teams(api_token):
-    url = f"https://api.sportmonks.com/api/v3/football/teams?api_token={api_token}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        teams = response.json()['data']
+    conn = http.client.HTTPSConnection("api.sportmonks.com")
+    conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
+    res = conn.getresponse()
+    data = res.read().decode("utf-8")
+    teams_data = json.loads(data)
+    
+    if res.status == 200:
+        teams = teams_data['data']
         return [(team['id'], team['name']) for team in teams]
     else:
         st.error("Failed to fetch teams")
@@ -17,14 +22,19 @@ def get_scores(team_id, mode, api_token):
     # Placeholder for actual API endpoint and logic
     if mode == "Team vs. Team":
         # Replace with actual endpoint and parameters
-        url = f"https://api.sportmonks.com/api/v3/football/matches?team_id={team_id}&api_token={api_token}"
+        url = f"/api/v3/football/matches?team_id={team_id}&api_token={api_token}"
     else:  # "1 Team"
         # Replace with actual endpoint and parameters
-        url = f"https://api.sportmonks.com/api/v3/football/scores?team_id={team_id}&api_token={api_token}"
+        url = f"/api/v3/football/scores?team_id={team_id}&api_token={api_token}"
     
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()['data']
+    conn = http.client.HTTPSConnection("api.sportmonks.com")
+    conn.request("GET", url)
+    res = conn.getresponse()
+    data = res.read().decode("utf-8")
+    scores_data = json.loads(data)
+    
+    if res.status == 200:
+        return scores_data['data']
     else:
         st.error("Failed to fetch scores")
         return []
@@ -46,6 +56,12 @@ if st.button("Show Scores"):
     st.write(f"Selected Team ID: {team_id}")
     st.write(f"Selected Mode: {mode}")
 
-    # Fetch and display scores
-    scores = get_scores(team_id, mode, api_token)
-    st.write(scores)  # Adjust this to match your data format
+    # Show animation while loading
+    with st.spinner("Loading scores..."):
+        # Insert animation HTML
+        animation_html = """
+        <style>
+        .animation-container {
+            position: relative;
+            width: 100%;
+          
