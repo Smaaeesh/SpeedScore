@@ -1,7 +1,6 @@
 import streamlit as st
-import requests
 import pandas as pd
-import altair as alt
+import requests
 
 api_key = "8fce32c29bc344c9b3380c526a43d768"
 base_url = "https://api.football-data.org/v4/"
@@ -11,7 +10,7 @@ st.set_page_config(page_title="Football Score Tracker", page_icon="🏆")
 
 # Title and header
 st.title("Football Score Tracker")
-st.header("Top Players and More")
+st.header("Live Scores, Win Streaks, and More")
 
 # Color picker for background
 bg_color = st.color_picker("Choose Background Color", "#f0f0f0")
@@ -23,83 +22,76 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-# Function to fetch teams from Football Data API
-def get_teams():
+# Function to fetch team IDs from Football Data API
+def get_team_ids():
     url = f"{base_url}teams/"
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         teams = response.json().get("teams", [])
-        return [team["name"] for team in teams]
+        return {team["name"]: team["id"] for team in teams}
     else:
         st.error("Failed to fetch teams from API.")
-        return []
+        return {}
 
-# Function to get the most recent competition ID
-def get_recent_competition_id():
-    url = f"{base_url}competitions/"
-    headers = {"X-Auth-Token": api_key}
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        competitions = response.json().get("competitions", [])
-        if competitions:
-            most_recent = sorted(competitions, key=lambda x: x['currentSeason']['startDate'], reverse=True)[0]
-            return most_recent['id']
-        else:
-            st.error("No competitions available.")
-            return None
-    else:
-        st.error("Failed to fetch competitions from API.")
-        return None
-
-# Function to fetch top players from a competition
-def get_top_players(competition_id, season_year):
-    url = f"{base_url}competitions/{competition_id}/scorers?limit=3&season={season_year}"
+# Function to get win streak data for a specific team
+def get_win_streak_data(team_id):
+    url = f"{base_url}teams/{team_id}/matches/"
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         data = response.json()
-        players = data.get("scorers", [])
-        return players
+        matches = data.get('matches', [])
+        if matches:
+            win_streaks = pd.DataFrame({
+                'Date': [pd.to_datetime(match['utcDate']) for match in matches],
+                'Result': [1 if match['score']['fullTime']['home'] > match['score']['fullTime']['away'] else 0 for match in matches]
+            })
+            return win_streaks
+        else:
+            return pd.DataFrame(columns=['Date', 'Result'])
     else:
-        st.error("Failed to fetch top players from API.")
-        return []
-
-# Function to plot top players
-def plot_top_players(players):
-    df = pd.DataFrame({
-        'Player': [player['player']['name'] for player in players],
-        'Goals': [player['goals'] for player in players]
-    })
-
-    chart = alt.Chart(df).mark_bar().encode(
-        x='Player',
-        y='Goals',
-        color='Player',
-        tooltip=['Player', 'Goals']
-    ).properties(
-        title='Top 3 Players'
-    )
-
-    st.altair_chart(chart)
+        st.error("Failed to fetch win streak data from API.")
+        return pd.DataFrame(columns=['Date', 'Result'])
 
 # Sidebar for team selection
-team_options = get_teams()
-selected_team = st.selectbox("Select a team to view top players:", team_options)
+team_ids = get_team_ids()
+team_options = list(team_ids.keys())
+selected_team = st.selectbox("Select a team to view win streak:", team_options)
 
 if selected_team:
-    # Get recent competition and top players
-    competition_id = get_recent_competition_id()
-    if competition_id:
-        season_year = pd.Timestamp.now().year
-        top_players = get_top_players(competition_id, season_year)
-        if top_players:
-            st.write(f"### Top 3 Players for {selected_team}")
-            plot_top_players(top_players)
-        else:
-            st.write("No top players data available.")
+    selected_team_id = team_ids[selected_team]
+    win_streak_data = get_win_streak_data(selected_team_id)
+    
+    if not win_streak_data.empty:
+        st.write(f"### Win Streak Data for {selected_team}")
+        
+        # Create a comparison feature
+        if st.button("Compare with another team"):
+            # Show a second selectbox for team comparison
+            comparison_team = st.selectbox("Select a team to compare:", team_options)
+            
+            if comparison_team and comparison_team != selected_team:
+                comparison_team_id = team_ids[comparison_team]
+                comparison_data = get_win_streak_data(comparison_team_id)
+                
+                if not comparison_data.empty:
+                    st.write(f"### Comparison of Win Streaks: {selected_team} vs {comparison_team}")
+                    
+                    # Prepare data for comparison
+                    combined_data = pd.merge(win_streak_data, comparison_data, on='Date', how='outer', suffixes=('_' + selected_team, '_' + comparison_team))
+                    combined_data.fillna(0, inplace=True)
+                    
+                    st.line_chart({
+                        f'{selected_team} Win Streak': combined_data.set_index('Date')['Result_' + selected_team],
+                        f'{comparison_team} Win Streak': combined_data.set_index('Date')['Result_' + comparison_team]
+                    })
+                else:
+                    st.write(f"No win streak data available for {comparison_team}.")
+            else:
+                st.write("Please select a different team to compare.")
     else:
-        st.write("Failed to get recent competition ID.")
+        st.write("No win streak data available for the selected team.")
 
 # Email updates
 email = st.text_input("Enter your email for regular updates:")
