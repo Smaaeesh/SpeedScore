@@ -77,4 +77,40 @@ def plot_stadium_location(stadium_lat, stadium_lon):
 
     layer = pdk.Layer(
         'ScatterplotLayer',
-        data=[{"latitude":
+        data=[{"latitude": stadium_lat, "longitude": stadium_lon}],
+        get_position='[longitude, latitude]',
+        get_color='[255, 0, 0, 160]',
+        get_radius=200,
+        pickable=True,
+    )
+
+    tooltip = {
+        "html": f"Stadium Location<br/>Lat: {stadium_lat} <br/> Long: {stadium_lon}",
+        "style": {
+            "backgroundColor": "darkblue",
+            "color": "white"
+        }
+    }
+
+    r = pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v10',
+        initial_view_state=view_state,
+        layers=[layer],
+        tooltip=tooltip
+    )
+
+    st.pydeck_chart(r)
+
+# Example stadium coordinates (replace with actual coordinates)
+stadium_lat = 40.4406
+stadium_lon = -79.9959
+plot_stadium_location(stadium_lat, stadium_lon)
+
+# Email updates
+email = st.text_input("Enter your email for regular updates:")
+if st.button("Subscribe"):
+    if email:
+        st.success(f"Subscribed successfully with {email}")
+        # Placeholder for email subscription logic
+    else:
+        st.warning("Please enter a valid email address.")
