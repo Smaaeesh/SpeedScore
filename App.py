@@ -1,9 +1,8 @@
-
 import streamlit as st
 import requests
 import pydeck as pdk
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 api_key = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"
 
@@ -43,68 +42,11 @@ if selected_teams:
     for team in selected_teams:
         st.write(f"Scores for {team}: {scores.get(team, 'No data available')}")
 
-import plotly.express as px
-
-# Function to plot win streak with plotly
+# Graph showing team’s win streak status
 def plot_win_streak(team_name):
     # Placeholder for API call to get win streak data
     win_streaks = pd.DataFrame({
         'Date': pd.date_range(start='2024-01-01', periods=10),
         'Wins': [1, 1, 0, 1, 1, 1, 0, 1, 1, 1]  # Example data
     })
-
-    fig = px.line(win_streaks, x='Date', y='Wins', title=f'Win Streak for {team_name}', markers=True)
-    st.plotly_chart(fig)
-
-if selected_teams:
-    selected_team_for_streak = st.selectbox("Select a team to view win streak:", selected_teams)
-    plot_win_streak(selected_team_for_streak)
-
-# Map to locate local stadium
-def plot_stadium_location(stadium_lat, stadium_lon):
-    view_state = pdk.ViewState(
-        latitude=stadium_lat,
-        longitude=stadium_lon,
-        zoom=12,
-        pitch=50
-    )
-
-    layer = pdk.Layer(
-        'ScatterplotLayer',
-        data=[{"latitude": stadium_lat, "longitude": stadium_lon}],
-        get_position='[longitude, latitude]',
-        get_color='[255, 0, 0, 160]',
-        get_radius=200,
-        pickable=True,
-    )
-
-    tooltip = {
-        "html": f"Stadium Location<br/>Lat: {stadium_lat} <br/> Long: {stadium_lon}",
-        "style": {
-            "backgroundColor": "darkblue",
-            "color": "white"
-        }
-    }
-
-    r = pdk.Deck(
-        map_style='mapbox://styles/mapbox/light-v10',
-        initial_view_state=view_state,
-        layers=[layer],
-        tooltip=tooltip
-    )
-
-    st.pydeck_chart(r)
-
-# Example stadium coordinates (replace with actual coordinates)
-stadium_lat = 40.4406
-stadium_lon = -79.9959
-plot_stadium_location(stadium_lat, stadium_lon)
-
-# Email updates
-email = st.text_input("Enter your email for regular updates:")
-if st.button("Subscribe"):
-    if email:
-        st.success(f"Subscribed successfully with {email}")
-        # Placeholder for email subscription logic
-    else:
-        st.warning("Please enter a valid email address.")
+    fig = px.line(win_streaks, 
