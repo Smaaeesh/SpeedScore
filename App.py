@@ -9,6 +9,10 @@ def get_teams(api_token):
         conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
         res = conn.getresponse()
         
+        # Debugging output
+        st.write(f"Status Code: {res.status}")
+        st.write(f"Response Reason: {res.reason}")
+        
         if res.status == 200:
             data = res.read().decode("utf-8")
             teams_data = json.loads(data)
@@ -33,6 +37,10 @@ def get_scores(team_id, mode, api_token):
         conn.request("GET", url)
         res = conn.getresponse()
         
+        # Debugging output
+        st.write(f"Status Code: {res.status}")
+        st.write(f"Response Reason: {res.reason}")
+        
         if res.status == 200:
             data = res.read().decode("utf-8")
             scores_data = json.loads(data)
@@ -55,6 +63,7 @@ if teams:
     team_options = {name: id for id, name in teams}
     team_name = st.selectbox("Select your team", list(team_options.keys()))
 else:
+    st.write("No teams available or failed to fetch teams.")
     team_name = None
 
 # Buttons to select mode
