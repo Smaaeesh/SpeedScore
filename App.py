@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
-import random
-from datetime import datetime
-import requests  # Ensure this import is present
+import requests
 
 api_key = "8fce32c29bc344c9b3380c526a43d768"
 base_url = "https://api.football-data.org/v4/"
@@ -66,12 +64,17 @@ def get_win_streak_data(team_id, season_year):
         else:
             return pd.DataFrame(columns=['Date', 'Streak'])
     else:
-        st.error(f"Failed to fetch win streak data from API. Status code: {response.status_code}, Response: {response.text}")
+        st.error("Failed to fetch win streak data from API.")
         return pd.DataFrame(columns=['Date', 'Streak'])
 
 # Sidebar for team selection
 team_options = get_teams()
-selected_team = st.selectbox("Select a team to view win streak:", list(team_options.keys()))
+# Set default option to Borussia Dortmund if available
+default_team = "Borussia Dortmund"
+if default_team in team_options:
+    selected_team = st.selectbox("Select a team to view win streak:", list(team_options.keys()), index=list(team_options.keys()).index(default_team))
+else:
+    selected_team = st.selectbox("Select a team to view win streak:", list(team_options.keys()))
 
 # Date input for selecting year
 season_year = st.date_input("Select the season year", min_value=pd.to_datetime('2000-01-01'), max_value=pd.to_datetime('2024-12-31')).year
@@ -102,4 +105,3 @@ if st.button("Subscribe"):
         # Placeholder for email subscription logic
     else:
         st.warning("Please enter a valid email address.")
-
