@@ -3,7 +3,7 @@ import requests
 
 # Set up the API endpoints
 BASE_URL = "https://soccer.sportmonks.com/api/v3.0"
-API_KEY = "your_api_key_here"  # Replace with your actual API key
+API_KEY = "sXEjCjQh3vCYZoGbQgEekBX9bmN1EVJRmVilK25JkdVprFEQ6foUwrbW0zTt"
 
 # Function to get the list of countries from the API
 def get_countries():
