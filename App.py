@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+from datetime import datetime
 
 api_key = "8fce32c29bc344c9b3380c526a43d768"
 base_url = "https://api.football-data.org/v4/"
@@ -71,8 +72,9 @@ def get_win_streak_data(team_id, season_year):
 team_options = get_teams()
 selected_team = st.selectbox("Select a team to view win streak:", list(team_options.keys()))
 
-# Date input for selecting year
-season_year = st.date_input("Select the season year", min_value=pd.to_datetime('2000-01-01'), max_value=pd.to_datetime('2024-12-31')).year
+# Date input for selecting year with max_value set to today's date
+today = datetime.today().date()
+season_year = st.date_input("Select the season year", min_value=pd.to_datetime('2000-01-01'), max_value=today).year
 
 # Fetch and display win streak data
 if selected_team:
