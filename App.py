@@ -4,39 +4,44 @@ import json
 
 # Function to fetch teams from SportMonks API using http.client
 def get_teams(api_token):
-    conn = http.client.HTTPSConnection("api.sportmonks.com")
-    conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
-    res = conn.getresponse()
-    data = res.read().decode("utf-8")
-    teams_data = json.loads(data)
-    
-    if res.status == 200:
-        teams = teams_data['data']
-        return [(team['id'], team['name']) for team in teams]
-    else:
-        st.error("Failed to fetch teams")
+    try:
+        conn = http.client.HTTPSConnection("api.sportmonks.com")
+        conn.request("GET", f"/api/v3/football/teams?api_token={api_token}")
+        res = conn.getresponse()
+        
+        if res.status == 200:
+            data = res.read().decode("utf-8")
+            teams_data = json.loads(data)
+            teams = teams_data.get('data', [])
+            return [(team['id'], team['name']) for team in teams]
+        else:
+            st.error(f"Failed to fetch teams. Status code: {res.status}. Message: {res.reason}")
+            return []
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
         return []
 
 # Function to fetch scores based on selected team and mode
 def get_scores(team_id, mode, api_token):
-    # Placeholder for actual API endpoint and logic
-    if mode == "Team vs. Team":
-        # Replace with actual endpoint and parameters
-        url = f"/api/v3/football/matches?team_id={team_id}&api_token={api_token}"
-    else:  # "1 Team"
-        # Replace with actual endpoint and parameters
-        url = f"/api/v3/football/scores?team_id={team_id}&api_token={api_token}"
-    
-    conn = http.client.HTTPSConnection("api.sportmonks.com")
-    conn.request("GET", url)
-    res = conn.getresponse()
-    data = res.read().decode("utf-8")
-    scores_data = json.loads(data)
-    
-    if res.status == 200:
-        return scores_data['data']
-    else:
-        st.error("Failed to fetch scores")
+    try:
+        conn = http.client.HTTPSConnection("api.sportmonks.com")
+        if mode == "Team vs. Team":
+            url = f"/api/v3/football/matches?team_id={team_id}&api_token={api_token}"
+        else:  # "1 Team"
+            url = f"/api/v3/football/scores?team_id={team_id}&api_token={api_token}"
+        
+        conn.request("GET", url)
+        res = conn.getresponse()
+        
+        if res.status == 200:
+            data = res.read().decode("utf-8")
+            scores_data = json.loads(data)
+            return scores_data.get('data', [])
+        else:
+            st.error(f"Failed to fetch scores. Status code: {res.status}. Message: {res.reason}")
+            return []
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
         return []
 
 # Streamlit app
