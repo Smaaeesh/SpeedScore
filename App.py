@@ -47,7 +47,16 @@ def get_win_streak_data(team_id):
         win_streaks = []
         streak_count = 0
         for match in matches:
-            result = match['score']['fullTime']['home'] > match['score']['fullTime']['away']
+            home_score = match['score']['fullTime'].get('home', 0)
+            away_score = match['score']['fullTime'].get('away', 0)
+            
+            # Ensure home_score and away_score are integers
+            if home_score is None:
+                home_score = 0
+            if away_score is None:
+                away_score = 0
+            
+            result = home_score > away_score
             if result:  # Win
                 streak_count += 1
             else:  # Loss
