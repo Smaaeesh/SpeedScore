@@ -1,3 +1,4 @@
+
 import streamlit as st
 import requests
 import pydeck as pdk
@@ -42,19 +43,18 @@ if selected_teams:
     for team in selected_teams:
         st.write(f"Scores for {team}: {scores.get(team, 'No data available')}")
 
-# Graph showing team’s win streak status
+import plotly.express as px
+
+# Function to plot win streak with plotly
 def plot_win_streak(team_name):
     # Placeholder for API call to get win streak data
     win_streaks = pd.DataFrame({
         'Date': pd.date_range(start='2024-01-01', periods=10),
         'Wins': [1, 1, 0, 1, 1, 1, 0, 1, 1, 1]  # Example data
     })
-    fig, ax = plt.subplots()
-    ax.plot(win_streaks['Date'], win_streaks['Wins'], marker='o')
-    ax.set_title(f"Win Streak for {team_name}")
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Wins')
-    st.pyplot(fig)
+
+    fig = px.line(win_streaks, x='Date', y='Wins', title=f'Win Streak for {team_name}', markers=True)
+    st.plotly_chart(fig)
 
 if selected_teams:
     selected_team_for_streak = st.selectbox("Select a team to view win streak:", selected_teams)
