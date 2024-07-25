@@ -77,20 +77,25 @@ def plot_win_streak(team_name):
     team_id = team_options.index(team_name) + 1  # Simplistic ID mapping, adjust as necessary
     win_streaks = get_win_streak(team_id)
     if not win_streaks.empty:
-        # Convert date to datetime
-        win_streaks['utcDate'] = pd.to_datetime(win_streaks['utcDate'])
+        # Convert date to datetime and ensure it is timezone-naive
+        win_streaks['utcDate'] = pd.to_datetime(win_streaks['utcDate']).dt.tz_localize(None)
+        
         # Filter data for the last year
-        one_year_ago = pd.to_datetime('today') - pd.DateOffset(years=1)
+        one_year_ago = pd.to_datetime('today').normalize() - pd.DateOffset(years=1)
         win_streaks = win_streaks[win_streaks['utcDate'] >= one_year_ago]
         
-        # Plot the data
-        st.line_chart(
-            win_streaks[['utcDate', 'score']].set_index('utcDate'),
-            use_container_width=True
-        )
-        st.write(f"Win Streak Data for {team_name} over the Last Year")
+        if not win_streaks.empty:
+            # Plot the data
+            st.line_chart(
+                win_streaks[['utcDate', 'score']].set_index('utcDate'),
+                use_container_width=True
+            )
+            st.write(f"Win Streak Data for {team_name} over the Last Year")
+        else:
+            st.write("No win streak data available for the last year.")
     else:
         st.write("No win streak data available.")
+
 
 if selected_teams:
     selected_team_for_streak = st.selectbox("Select a team to view win streak:", selected_teams)
