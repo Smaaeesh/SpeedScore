@@ -35,6 +35,7 @@ def get_teams():
         return {}
 
 # Function to get win streak data for a specific team
+# Function to get win streak data for a specific team
 def get_win_streak_data(team_id, season_year):
     url = f"{base_url}teams/{team_id}/matches?season={season_year}"
     headers = {"X-Auth-Token": api_key}
@@ -44,22 +45,34 @@ def get_win_streak_data(team_id, season_year):
         matches = data.get('matches', [])
         
         if matches:
+            dates = [pd.to_datetime(match['utcDate']) for match in matches]
+            results = [match['score']['fullTime'].get('home', 0) > match['score']['fullTime'].get('away', 0) for match in matches]
+            
             win_streaks = []
             current_streak = 0
-            for match in matches:
-                home_score = match['score']['fullTime'].get('home', 0) or 0
-                away_score = match['score']['fullTime'].get('away', 0) or 0
-                result = 1 if home_score > away_score else 0
-                
-                if result == 1:
+
+            for result in results:
+                if result:  # Home team won
                     current_streak += 1
                 else:
-                    win_streaks.append(current_streak)
-                    current_streak = 0
-            win_streaks.append(current_streak)  # Append final streak
+                    if current_streak > 0:
+                        win_streaks.append(current_streak)
+                        current_streak = 0
+            
+            if current_streak > 0:
+                win_streaks.append(current_streak)
+            
+            # Fill streaks for each date
+            streak_data = []
+            for date in dates:
+                if win_streaks:
+                    streak_data.append(win_streaks.pop(0))
+                else:
+                    streak_data.append(0)
+            
             return pd.DataFrame({
-                'Date': [pd.to_datetime(match['utcDate']) for match in matches],
-                'Streak': win_streaks
+                'Date': dates,
+                'Streak': streak_data
             }).set_index('Date')
         else:
             return pd.DataFrame(columns=['Date', 'Streak'])
