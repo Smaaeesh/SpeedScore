@@ -1,6 +1,7 @@
 import streamlit as st
-import pandas as pd
 import requests
+import pandas as pd
+import altair as alt
 
 api_key = "8fce32c29bc344c9b3380c526a43d768"
 base_url = "https://api.football-data.org/v4/"
@@ -10,7 +11,7 @@ st.set_page_config(page_title="Football Score Tracker", page_icon="🏆")
 
 # Title and header
 st.title("Football Score Tracker")
-st.header("Live Scores, Win Streaks, and More")
+st.header("Top Players and More")
 
 # Color picker for background
 bg_color = st.color_picker("Choose Background Color", "#f0f0f0")
@@ -34,60 +35,66 @@ def get_teams():
         st.error("Failed to fetch teams from API.")
         return []
 
-# Function to get win streak data for a specific team
-def get_win_streak_data(team_name):
-    # Placeholder for API call to get win streak data
-    url = f"{base_url}matches?team={team_name}&dateFrom={pd.Timestamp.now() - pd.DateOffset(years=1)}&dateTo={pd.Timestamp.now()}"
+# Function to get the most recent competition ID
+def get_recent_competition_id():
+    url = f"{base_url}competitions/"
     headers = {"X-Auth-Token": api_key}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        data = response.json()
-        matches = data.get('matches', [])
-        if matches:
-            win_streaks = pd.DataFrame({
-                'Date': [pd.to_datetime(match['utcDate']) for match in matches],
-                'Result': [1 if match['score']['fullTime']['home'] > match['score']['fullTime']['away'] else 0 for match in matches]
-            })
-            return win_streaks
-        else:
-            return pd.DataFrame(columns=['Date', 'Result'])
+        competitions = response.json().get("competitions", [])
+        most_recent = sorted(competitions, key=lambda x: x['currentSeason']['startDate'], reverse=True)[0]
+        return most_recent['id']
     else:
-        st.error("Failed to fetch win streak data from API.")
-        return pd.DataFrame(columns=['Date', 'Result'])
+        st.error("Failed to fetch competitions from API.")
+        return None
+
+# Function to fetch top players from a competition
+def get_top_players(competition_id, season_year):
+    url = f"{base_url}competitions/{competition_id}/scorers?limit=3&season={season_year}"
+    headers = {"X-Auth-Token": api_key}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        players = response.json().get("scorers", [])
+        return players
+    else:
+        st.error("Failed to fetch top players from API.")
+        return []
+
+# Function to plot top players
+def plot_top_players(players):
+    df = pd.DataFrame({
+        'Player': [player['player']['name'] for player in players],
+        'Goals': [player['goals'] for player in players]
+    })
+
+    chart = alt.Chart(df).mark_bar().encode(
+        x='Player',
+        y='Goals',
+        color='Player',
+        tooltip=['Player', 'Goals']
+    ).properties(
+        title='Top 3 Players'
+    )
+
+    st.altair_chart(chart)
 
 # Sidebar for team selection
 team_options = get_teams()
-selected_team = st.selectbox("Select a team to view win streak:", team_options)
+selected_team = st.selectbox("Select a team to view top players:", team_options)
 
-# Fetch and display win streak data
 if selected_team:
-    win_streak_data = get_win_streak_data(selected_team)
-    
-    if not win_streak_data.empty:
-        st.write(f"### Win Streak Data for {selected_team}")
-        
-        # Create a comparison feature
-        if st.button("Compare with another team"):
-            # Show a second selectbox for team comparison
-            comparison_team = st.selectbox("Select a team to compare:", team_options)
-            
-            if comparison_team and comparison_team != selected_team:
-                comparison_data = get_win_streak_data(comparison_team)
-                
-                if not comparison_data.empty:
-                    st.write(f"### Comparison of Win Streaks: {selected_team} vs {comparison_team}")
-                    
-                    # Plot comparison
-                    st.line_chart({
-                        f'{selected_team} Win Streak': win_streak_data.groupby('Date').sum()['Result'],
-                        f'{comparison_team} Win Streak': comparison_data.groupby('Date').sum()['Result']
-                    })
-                else:
-                    st.write(f"No win streak data available for {comparison_team}.")
-            else:
-                st.write("Please select a different team to compare.")
+    # Get recent competition and top players
+    competition_id = get_recent_competition_id()
+    if competition_id:
+        season_year = pd.Timestamp.now().year
+        top_players = get_top_players(competition_id, season_year)
+        if top_players:
+            st.write(f"### Top 3 Players for {selected_team}")
+            plot_top_players(top_players)
+        else:
+            st.write("No top players data available.")
     else:
-        st.write("No win streak data available for the selected team.")
+        st.write("Failed to get recent competition ID.")
 
 # Email updates
 email = st.text_input("Enter your email for regular updates:")
