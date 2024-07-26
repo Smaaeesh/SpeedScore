@@ -200,8 +200,9 @@ st.markdown(
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: {background_color};
-        z-index: -9999;
+        background-color: {background_color} !important;
+        z-index: -1;
+        pointer-events: none;
     }}
     </style>
     """, unsafe_allow_html=True
