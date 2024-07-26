@@ -4,42 +4,35 @@ import random
 from datetime import datetime, timedelta
 import time
 
-# Function to simulate win streak data for a year
+# Function to simulate win streak data for a whole year
 def get_win_streak_data(team_id, season_year):
+    # Generate a date range for the entire year
     start_date = datetime(year=season_year, month=1, day=1)
     end_date = datetime(year=season_year, month=12, day=31)
     dates = pd.date_range(start=start_date, end=end_date, freq='D')
     
+    # Generate random results for each day
     results = []
-
-    for date in dates:
-        # Simulate home and away scores
-        home_score = random.choice([0, 1, 2, 3])
-        away_score = random.choice([0, 1, 2, 3])
-        
-        if home_score > away_score:
-            results.append(1)
-        elif home_score < away_score:
-            results.append(0)
-        else:
-            results.append(0.5)
+    for _ in dates:
+        # Randomly choose win (1), loss (0), or tie (0.5)
+        results.append(random.choice([1, 0, 0.5]))
     
+    # Calculate win streaks
     win_streaks = []
     current_streak = 0
-    
     for result in results:
         if result == 1:
             current_streak += 1
         else:
             current_streak = 0
         win_streaks.append(current_streak)
-
+    
     # Ensure dates and win_streaks are the same length
     if len(dates) != len(win_streaks):
         min_length = min(len(dates), len(win_streaks))
         dates = dates[:min_length]
         win_streaks = win_streaks[:min_length]
-
+    
     return pd.DataFrame({
         'Date': dates,
         'Streak': win_streaks
@@ -53,9 +46,6 @@ st.title("Football Win Streaks")
 # Sidebar for mode selection using buttons
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("", ["1 team", "team vs. team"])
-
-# Remove the soccer ball emojis
-st.sidebar.markdown("## Soccer Stats")
 
 # Define team options
 team_options = {
