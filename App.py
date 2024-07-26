@@ -107,4 +107,30 @@ else:
     team_id_1 = team_options.get(selected_team_1)
     team_id_2 = team_options.get(selected_team_2)
 
-    if team_i
+    if team_id_1 and team_id_2:
+        display_success_box()
+        win_streak_data_1 = get_win_streak_data(team_id_1, season_year)
+        win_streak_data_2 = get_win_streak_data(team_id_2, season_year)
+        
+        # Display the DataFrames to check their contents
+        st.write("Win Streak Data for Team 1:")
+        st.dataframe(win_streak_data_1)
+        
+        st.write("Win Streak Data for Team 2:")
+        st.dataframe(win_streak_data_2)
+        
+        # Plot the data side by side
+        st.subheader("Win Streak Over Time")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.line_chart(win_streak_data_1, width=350, height=250)
+            st.markdown(f"**{selected_team_1} Win Streak**")
+        
+        with col2:
+            st.line_chart(win_streak_data_2, width=350, height=250)
+            st.markdown(f"**{selected_team_2} Win Streak**")
+
+# Additional Streamlit components as needed
+background_color = st.color_picker("Pick a background color", "#ffffff")
+st.write("You selected:", background_color)
