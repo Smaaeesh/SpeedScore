@@ -195,13 +195,13 @@ st.markdown(
     f"""
     <style>
     .color-box {{
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
         background-color: {background_color};
-        z-index: -1;
+        z-index: -9999;
     }}
     </style>
     """, unsafe_allow_html=True
