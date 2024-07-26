@@ -45,8 +45,11 @@ def get_win_streak_data(team_id, season_year):
         
         if matches:
             dates = [pd.to_datetime(match['utcDate']) for match in matches]
+            
+            # Handle NoneType values
             results = [
-                1 if match['score']['fullTime'].get('home', 0) > match['score']['fullTime'].get('away', 0) else 0
+                1 if (match['score']['fullTime'].get('home', 0) or 0) > (match['score']['fullTime'].get('away', 0) or 0)
+                else 0
                 for match in matches
             ]
             
