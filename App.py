@@ -166,6 +166,21 @@ review = st.text_area(
     height=200
 )
 
-# Display the review and rating (you can remove this in production)
-st.write(f"Rating: {rating}")
-st.write(f"Review: {review}")
+# Button to submit the review
+if st.button("Submit Review"):
+    st.success("Thank you for your review!")
+
+# Email submission
+st.subheader("Receive Future Updates")
+
+email = st.text_input(
+    "Enter your email:",
+    placeholder="example@domain.com"
+)
+
+# Button to submit email
+if st.button("Submit Email"):
+    if email:
+        st.success("Thank you! You will receive future updates.")
+    else:
+        st.warning("Please enter a valid email address.")
