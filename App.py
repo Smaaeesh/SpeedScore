@@ -184,6 +184,25 @@ if st.button("Submit Feedback"):
     st.write(f"**Rating:** {rating}")
     st.write(f"**Review:** {review}")
 
-# Additional Streamlit components as needed
+# Background color picker
+st.subheader("Customize Background Color")
+
+# Color picker
 background_color = st.color_picker("Pick a background color", "#ffffff")
-st.write("You selected:", background_color)
+
+# Apply background color to a square box
+st.markdown(
+    f"""
+    <style>
+    .color-box {{
+        width: 200px;
+        height: 200px;
+        background-color: {background_color};
+        border: 1px solid black;
+    }}
+    </style>
+    """, unsafe_allow_html=True
+)
+
+# Display the color box
+st.markdown('<div class="color-box"></div>', unsafe_allow_html=True)
