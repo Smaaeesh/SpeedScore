@@ -72,7 +72,7 @@ mode = st.sidebar.radio("", ["1 team", "team vs. team"])
 # Add larger soccer emoji to the sidebar
 st.sidebar.markdown(
     """
-    <div style="font-size: 2000px; text-align: center; line-height: 1; margin: 0; padding: 0; font-weight: bold;">⚽️</div>
+    <div style="font-size: 2000px; text-align: center; line-height: 1; margin: 0; padding: 0; font-weight: bold;">⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️</div>
     """, unsafe_allow_html=True
 )
 
