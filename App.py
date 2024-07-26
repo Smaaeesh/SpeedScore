@@ -109,10 +109,17 @@ else:
         st.write("Win Streak Data for Team 2:")
         st.dataframe(win_streak_data_2)
         
-        # Plot the data
+        # Plot the data side by side
         st.subheader("Win Streak Over Time")
-        st.line_chart(win_streak_data_1)
-        st.line_chart(win_streak_data_2)
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.line_chart(win_streak_data_1, width=350, height=250)
+            st.write(f"{selected_team_1} Win Streak")
+        
+        with col2:
+            st.line_chart(win_streak_data_2, width=350, height=250)
+            st.write(f"{selected_team_2} Win Streak")
 
 # Additional Streamlit components as needed
 background_color = st.color_picker("Pick a background color", "#ffffff")
