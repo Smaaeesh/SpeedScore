@@ -63,11 +63,12 @@ def get_win_streak_data(team_id, season_year):
 # Streamlit app setup
 st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
 
-st.title("Football Win Streaks")
-
-# Sidebar for mode selection using buttons
+# Sidebar setup
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("", ["1 team", "team vs. team"])
+
+# Add image to sidebar
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Soccer_ball.svg/1200px-Soccer_ball.svg.png", width=150)
 
 # Get team options from API or other source
 team_options = {
@@ -113,6 +114,18 @@ st.markdown(
 # Display the color box
 st.markdown('<div class="color-box"></div>', unsafe_allow_html=True)
 
+# Apply text color to all main headers and elements
+st.markdown(
+    f"""
+    <style>
+    h1, h2, h3, p {{
+        color: {text_color} !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True
+)
+
+# Main content
 if mode == "1 team":
     selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
     season_year = st.date_input("Select a season year:", datetime.now()).year
