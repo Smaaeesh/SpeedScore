@@ -64,8 +64,9 @@ st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
 
 st.title("Football Win Streaks")
 
-# Sidebar for mode selection
-mode = st.sidebar.selectbox("Select Mode", ["1 team", "team vs. team"])
+# Sidebar for mode selection using buttons
+st.sidebar.header("Select Mode")
+mode = st.sidebar.radio("", ["1 team", "team vs. team"])
 
 # Get team options from API or other source
 team_options = {
@@ -115,11 +116,11 @@ else:
         
         with col1:
             st.line_chart(win_streak_data_1, width=350, height=250)
-            st.write(f"{selected_team_1} Win Streak")
+            st.markdown(f"**{selected_team_1} Win Streak**")
         
         with col2:
             st.line_chart(win_streak_data_2, width=350, height=250)
-            st.write(f"{selected_team_2} Win Streak")
+            st.markdown(f"**{selected_team_2} Win Streak**")
 
 # Additional Streamlit components as needed
 background_color = st.color_picker("Pick a background color", "#ffffff")
