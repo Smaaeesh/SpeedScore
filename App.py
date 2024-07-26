@@ -64,6 +64,9 @@ st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
 
 st.title("Football Win Streaks")
 
+# Sidebar for mode selection
+mode = st.sidebar.selectbox("Select Mode", ["1 team", "team vs. team"])
+
 # Get team options from API or other source
 team_options = {
     'Borussia Dortmund': 1,
@@ -71,21 +74,45 @@ team_options = {
     'RB Leipzig': 3
 }
 
-selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
-season_year = st.date_input("Select a season year:", datetime.now()).year
+if mode == "1 team":
+    selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
+    season_year = st.date_input("Select a season year:", datetime.now()).year
 
-team_id = team_options.get(selected_team)
+    team_id = team_options.get(selected_team)
 
-if team_id:
-    win_streak_data = get_win_streak_data(team_id, season_year)
-    
-    # Display the DataFrame to check its contents
-    st.write("Win Streak Data:")
-    st.dataframe(win_streak_data)
-    
-    # Plot the data using line_chart
-    st.subheader("Win Streak Over Time")
-    st.line_chart(win_streak_data)
+    if team_id:
+        win_streak_data = get_win_streak_data(team_id, season_year)
+        
+        # Display the DataFrame to check its contents
+        st.write("Win Streak Data:")
+        st.dataframe(win_streak_data)
+        
+        # Plot the data
+        st.subheader("Win Streak Over Time")
+        st.line_chart(win_streak_data)
+else:
+    selected_team_1 = st.selectbox("Select the first team:", list(team_options.keys()), index=0)
+    selected_team_2 = st.selectbox("Select the second team:", list(team_options.keys()), index=1)
+    season_year = st.date_input("Select a season year:", datetime.now()).year
+
+    team_id_1 = team_options.get(selected_team_1)
+    team_id_2 = team_options.get(selected_team_2)
+
+    if team_id_1 and team_id_2:
+        win_streak_data_1 = get_win_streak_data(team_id_1, season_year)
+        win_streak_data_2 = get_win_streak_data(team_id_2, season_year)
+        
+        # Display the DataFrames to check their contents
+        st.write("Win Streak Data for Team 1:")
+        st.dataframe(win_streak_data_1)
+        
+        st.write("Win Streak Data for Team 2:")
+        st.dataframe(win_streak_data_2)
+        
+        # Plot the data
+        st.subheader("Win Streak Over Time")
+        st.line_chart(win_streak_data_1)
+        st.line_chart(win_streak_data_2)
 
 # Additional Streamlit components as needed
 background_color = st.color_picker("Pick a background color", "#ffffff")
