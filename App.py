@@ -1,64 +1,4 @@
 import streamlit as st
-import pandas as pd
-import random
-from datetime import datetime
-import time
-
-# Function to simulate win streak data
-def get_win_streak_data(team_id, season_year):
-    # Simulating API data for now
-    matches = [
-        {'utcDate': '2023-01-15T12:00:00Z', 'score': {'fullTime': {'home': random.choice([1, None]), 'away': random.choice([1, None])}}},
-        {'utcDate': '2023-02-20T15:00:00Z', 'score': {'fullTime': {'home': random.choice([1, None]), 'away': random.choice([1, None])}}},
-        # Add more simulated match data as needed
-    ]
-
-    if matches:
-        dates = [pd.to_datetime(match['utcDate']) for match in matches]
-        results = []
-
-        for match in matches:
-            home_score = match['score']['fullTime'].get('home', 0)
-            away_score = match['score']['fullTime'].get('away', 0)
-            
-            # Ensure we handle NoneType
-            if home_score is None:
-                home_score = 0
-            if away_score is None:
-                away_score = 0
-            
-            if home_score > away_score:
-                results.append(1)
-            elif home_score < away_score:
-                results.append(0)
-            else:
-                results.append(0.5)
-        
-        win_streaks = []
-        current_streak = 0
-        
-        for result in results:
-            if result == 1:
-                current_streak += 1
-            else:
-                current_streak = 0
-            win_streaks.append(current_streak)
-
-        # Print lengths for debugging
-        print(f"Length of dates: {len(dates)}")
-        print(f"Length of win_streaks: {len(win_streaks)}")
-        
-        if len(dates) != len(win_streaks):
-            min_length = min(len(dates), len(win_streaks))
-            dates = dates[:min_length]
-            win_streaks = win_streaks[:min_length]
-
-        return pd.DataFrame({
-            'Date': dates,
-            'Streak': win_streaks
-        }).set_index('Date')
-    
-    return pd.DataFrame(columns=['Date', 'Streak']).set_index('Date')
 
 # Streamlit app setup
 st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
@@ -69,22 +9,46 @@ st.title("Football Win Streaks")
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("", ["1 team", "team vs. team"])
 
-# Add larger soccer emoji to the sidebar
+# Add a large text of soccer emojis in a pile effect
 st.sidebar.markdown(
     """
-    <div style="font-size: 2000px; text-align: center; line-height: 1; margin: 0; padding: 0; font-weight: bold;">⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️⚽️</div>
+    <style>
+    .soccer-ball {
+        font-size: 100px;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+    .soccer-ball:nth-of-type(2) {
+        top: -50px;
+        left: 50px;
+        z-index: 0;
+    }
+    .soccer-ball:nth-of-type(3) {
+        top: -100px;
+        left: 100px;
+        z-index: -1;
+    }
+    .soccer-ball:nth-of-type(4) {
+        top: -150px;
+        left: 150px;
+        z-index: -2;
+    }
+    </style>
     """, unsafe_allow_html=True
 )
 
+# Insert multiple soccer ball emojis with different positioning
+st.sidebar.markdown(
+    """
+    <div class="soccer-ball">⚽️</div>
+    <div class="soccer-ball">⚽️</div>
+    <div class="soccer-ball">⚽️</div>
+    <div class="soccer-ball">⚽️</div>
+    """, unsafe_allow_html=True
 )
 
-# Get team options from API or other source
-team_options = {
-    'Borussia Dortmund': 1,
-    'FC Bayern Munich': 2,
-    'RB Leipzig': 3
-}
-
+# Rest of the Streamlit code
 def display_success_box():
     success_box = st.empty()
     success_box.success("Team(s) selected successfully!", icon="✅")
@@ -179,21 +143,20 @@ else:
             """, unsafe_allow_html=True
         )
 
-# Background color and text color control
-bg_color = st.color_picker("Pick a background color", "#ffffff")
-text_color = st.color_picker("Pick a text color", "#000000")
+# Additional Streamlit components as needed
+background_color = st.color_picker("Pick a background color", "#ffffff")
+st.write("You selected:", background_color)
 
-st.markdown(f"""
+# Change the background color of the entire app and text
+st.markdown(
+    f"""
     <style>
-    .reportview-container {{
-        background-color: {bg_color};
+    .css-1d391kg {{
+        background-color: {background_color};
     }}
-    .css-18e3th9 {{
-        color: {text_color};
+    .css-1v0mbdj {{
+        color: {background_color};
     }}
     </style>
-    """, unsafe_allow_html=True)
-
-# Additional Streamlit components as needed
-st.write("You selected background color:", bg_color)
-st.write("You selected text color:", text_color)
+    """, unsafe_allow_html=True
+)
