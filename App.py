@@ -69,17 +69,13 @@ st.title("Football Win Streaks")
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("", ["1 team", "team vs. team"])
 
-# Add large soccer emoji to the sidebar with custom font size
+# Add larger soccer emoji to the sidebar
 st.sidebar.markdown(
     """
-    <style>
-    .sidebar-content {
-        font-size: 50px;
-        text-align: center;
-    }
-    </style>
-    <div class="sidebar-content">⚽️</div>
+    <div style="font-size: 1500px; text-align: center;">⚽️</div>
     """, unsafe_allow_html=True
+)
+
 )
 
 # Get team options from API or other source
