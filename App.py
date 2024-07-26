@@ -130,6 +130,45 @@ else:
         with col2:
             st.line_chart(win_streak_data_2, width=350, height=250)
             st.markdown(f"**{selected_team_2} Win Streak**")
+        
+        # Create an interactive table
+        st.subheader("Interactive Results Table")
+        
+        # Combine data for the table
+        table_data = pd.DataFrame({
+            'Date': win_streak_data_1.index,
+            selected_team_1: win_streak_data_1['Streak'].values,
+            selected_team_2: win_streak_data_2['Streak'].values
+        }).set_index('Date')
+
+        # Interactive table
+        st.dataframe(table_data.style.set_properties(**{'cursor': 'pointer'}))
+
+        # Add CSS for highlighting
+        st.markdown(
+            """
+            <style>
+            .highlighted {
+                background-color: yellow;
+            }
+            </style>
+            """, unsafe_allow_html=True
+        )
+
+        # JavaScript for interactivity
+        st.markdown(
+            """
+            <script>
+            const elements = Array.from(document.getElementsByClassName('dataframe')).flatMap(df => Array.from(df.querySelectorAll('tbody tr td')));
+            elements.forEach(el => {
+                el.addEventListener('click', () => {
+                    elements.forEach(e => e.classList.remove('highlighted'));
+                    el.classList.add('highlighted');
+                });
+            });
+            </script>
+            """, unsafe_allow_html=True
+        )
 
 # Additional Streamlit components as needed
 background_color = st.color_picker("Pick a background color", "#ffffff")
