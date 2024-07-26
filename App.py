@@ -3,21 +3,26 @@ import pandas as pd
 import random
 from datetime import datetime, timedelta
 import time
+import requests
 
-# Function to simulate win streak data for a whole year
+def get_teams_from_api():
+    api_key = "8fce32c29bc344c9b3380c526a43d768"
+    headers = {"X-Auth-Token": api_key}
+    response = requests.get("https://api.football-data.org/v4/teams", headers=headers)
+    response.raise_for_status()  # Raise an error for bad responses
+    data = response.json()
+    teams = {team['name']: team['id'] for team in data['teams']}
+    return teams
+
 def get_win_streak_data(team_id, season_year):
-    # Generate a date range for the entire year
     start_date = datetime(year=season_year, month=1, day=1)
     end_date = datetime(year=season_year, month=12, day=31)
     dates = pd.date_range(start=start_date, end=end_date, freq='D')
     
-    # Generate random results for each day
     results = []
     for _ in dates:
-        # Randomly choose win (1), loss (0), or tie (0.5)
         results.append(random.choice([1, 0, 0.5]))
     
-    # Calculate win streaks
     win_streaks = []
     current_streak = 0
     for result in results:
@@ -27,7 +32,6 @@ def get_win_streak_data(team_id, season_year):
             current_streak = 0
         win_streaks.append(current_streak)
     
-    # Ensure dates and win_streaks are the same length
     if len(dates) != len(win_streaks):
         min_length = min(len(dates), len(win_streaks))
         dates = dates[:min_length]
@@ -38,21 +42,14 @@ def get_win_streak_data(team_id, season_year):
         'Streak': win_streaks
     }).set_index('Date')
 
-# Streamlit app setup
 st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
 
 st.title("Football Win Streaks")
 
-# Sidebar for mode selection using buttons
+team_options = get_teams_from_api()
+
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("Mode:", ["1 team", "team vs. team"], label_visibility="collapsed")
-
-# Define team options
-team_options = {
-    'Borussia Dortmund': 1,
-    'FC Bayern Munich': 2,
-    'RB Leipzig': 3
-}
 
 def display_success_box():
     success_box = st.empty()
@@ -70,11 +67,9 @@ if mode == "1 team":
         display_success_box()
         win_streak_data = get_win_streak_data(team_id, season_year)
         
-        # Display the DataFrame to check its contents
         st.write("Win Streak Data:")
         st.dataframe(win_streak_data)
         
-        # Plot the data
         st.subheader("Win Streak Over Time")
         st.line_chart(win_streak_data)
 else:
@@ -90,14 +85,12 @@ else:
         win_streak_data_1 = get_win_streak_data(team_id_1, season_year)
         win_streak_data_2 = get_win_streak_data(team_id_2, season_year)
         
-        # Display the DataFrames to check their contents
         st.write("Win Streak Data for Team 1:")
         st.dataframe(win_streak_data_1)
         
         st.write("Win Streak Data for Team 2:")
         st.dataframe(win_streak_data_2)
         
-        # Plot the data side by side
         st.subheader("Win Streak Over Time")
         col1, col2 = st.columns(2)
         
@@ -109,20 +102,16 @@ else:
             st.line_chart(win_streak_data_2, width=350, height=250)
             st.markdown(f"**{selected_team_2} Win Streak**")
         
-        # Create an interactive table
         st.subheader("Interactive Results Table")
         
-        # Combine data for the table
         table_data = pd.DataFrame({
             'Date': win_streak_data_1.index,
             selected_team_1: win_streak_data_1['Streak'].values,
             selected_team_2: win_streak_data_2['Streak'].values
         }).set_index('Date')
 
-        # Interactive table
         st.dataframe(table_data.style.set_properties(**{'cursor': 'pointer'}))
 
-        # Add CSS for highlighting
         st.markdown(
             """
             <style>
@@ -130,57 +119,4 @@ else:
                 background-color: yellow;
             }
             </style>
-            """, unsafe_allow_html=True
-        )
-
-        # JavaScript for interactivity
-        st.markdown(
-            """
-            <script>
-            const elements = Array.from(document.getElementsByClassName('dataframe')).flatMap(df => Array.from(df.querySelectorAll('tbody tr td')));
-            elements.forEach(el => {
-                el.addEventListener('click', () => {
-                    elements.forEach(e => e.classList.remove('highlighted'));
-                    el.classList.add('highlighted');
-                });
-            });
-            </script>
-            """, unsafe_allow_html=True
-        )
-
-# Review section
-st.subheader("Leave a Review")
-
-# Slider for rating
-rating = st.slider(
-    "Rating (1 to 10):",
-    min_value=1,
-    max_value=10,
-    value=5
-)
-
-# Text box for review
-review = st.text_area(
-    "Your Review:",
-    placeholder="Write your review here...",
-    height=200
-)
-
-# Button to submit the review
-if st.button("Submit Review"):
-    st.success("Thank you for your review!")
-
-# Email submission
-st.subheader("Receive Future Updates")
-
-email = st.text_input(
-    "Enter your email:",
-    placeholder="example@domain.com"
-)
-
-# Button to submit email
-if st.button("Submit Email"):
-    if email:
-        st.success("Thank you! You will receive future updates.")
-    else:
-        st.warning("Please enter a valid email address.")
+     
