@@ -170,6 +170,20 @@ else:
             """, unsafe_allow_html=True
         )
 
+# Additional Streamlit components for user feedback
+st.subheader("Leave Your Feedback")
+
+# Slider for rating
+rating = st.slider("Rate us (1-10):", min_value=1, max_value=10, step=1)
+
+# Textbox for review
+review = st.text_area("Write your review:")
+
+# Display the feedback
+if st.button("Submit Feedback"):
+    st.write(f"**Rating:** {rating}")
+    st.write(f"**Review:** {review}")
+
 # Additional Streamlit components as needed
 background_color = st.color_picker("Pick a background color", "#ffffff")
 st.write("You selected:", background_color)
