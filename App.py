@@ -1,64 +1,49 @@
 import streamlit as st
 import pandas as pd
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
-# Function to simulate win streak data
+# Function to simulate win streak data for a year
 def get_win_streak_data(team_id, season_year):
-    # Simulating API data for now
-    matches = [
-        {'utcDate': '2023-01-15T12:00:00Z', 'score': {'fullTime': {'home': random.choice([1, None]), 'away': random.choice([1, None])}}},
-        {'utcDate': '2023-02-20T15:00:00Z', 'score': {'fullTime': {'home': random.choice([1, None]), 'away': random.choice([1, None])}}},
-        # Add more simulated match data as needed
-    ]
-
-    if matches:
-        dates = [pd.to_datetime(match['utcDate']) for match in matches]
-        results = []
-
-        for match in matches:
-            home_score = match['score']['fullTime'].get('home', 0)
-            away_score = match['score']['fullTime'].get('away', 0)
-            
-            # Ensure we handle NoneType
-            if home_score is None:
-                home_score = 0
-            if away_score is None:
-                away_score = 0
-            
-            if home_score > away_score:
-                results.append(1)
-            elif home_score < away_score:
-                results.append(0)
-            else:
-                results.append(0.5)
-        
-        win_streaks = []
-        current_streak = 0
-        
-        for result in results:
-            if result == 1:
-                current_streak += 1
-            else:
-                current_streak = 0
-            win_streaks.append(current_streak)
-
-        # Print lengths for debugging
-        print(f"Length of dates: {len(dates)}")
-        print(f"Length of win_streaks: {len(win_streaks)}")
-        
-        if len(dates) != len(win_streaks):
-            min_length = min(len(dates), len(win_streaks))
-            dates = dates[:min_length]
-            win_streaks = win_streaks[:min_length]
-
-        return pd.DataFrame({
-            'Date': dates,
-            'Streak': win_streaks
-        }).set_index('Date')
+    start_date = datetime(year=season_year, month=1, day=1)
+    end_date = datetime(year=season_year, month=12, day=31)
+    dates = pd.date_range(start=start_date, end=end_date, freq='D')
     
-    return pd.DataFrame(columns=['Date', 'Streak']).set_index('Date')
+    results = []
+
+    for date in dates:
+        # Simulate home and away scores
+        home_score = random.choice([0, 1, 2, 3])
+        away_score = random.choice([0, 1, 2, 3])
+        
+        if home_score > away_score:
+            results.append(1)
+        elif home_score < away_score:
+            results.append(0)
+        else:
+            results.append(0.5)
+    
+    win_streaks = []
+    current_streak = 0
+    
+    for result in results:
+        if result == 1:
+            current_streak += 1
+        else:
+            current_streak = 0
+        win_streaks.append(current_streak)
+
+    # Ensure dates and win_streaks are the same length
+    if len(dates) != len(win_streaks):
+        min_length = min(len(dates), len(win_streaks))
+        dates = dates[:min_length]
+        win_streaks = win_streaks[:min_length]
+
+    return pd.DataFrame({
+        'Date': dates,
+        'Streak': win_streaks
+    }).set_index('Date')
 
 # Streamlit app setup
 st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
