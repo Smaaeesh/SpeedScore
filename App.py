@@ -119,4 +119,50 @@ else:
                 background-color: yellow;
             }
             </style>
-     
+            """, unsafe_allow_html=True
+        )
+
+        st.markdown(
+            """
+            <script>
+            const elements = Array.from(document.getElementsByClassName('dataframe')).flatMap(df => Array.from(df.querySelectorAll('tbody tr td')));
+            elements.forEach(el => {
+                el.addEventListener('click', () => {
+                    elements.forEach(e => e.classList.remove('highlighted'));
+                    el.classList.add('highlighted');
+                });
+            });
+            </script>
+            """, unsafe_allow_html=True
+        )
+
+st.subheader("Leave a Review")
+
+rating = st.slider(
+    "Rating (1 to 10):",
+    min_value=1,
+    max_value=10,
+    value=5
+)
+
+review = st.text_area(
+    "Your Review:",
+    placeholder="Write your review here...",
+    height=200
+)
+
+if st.button("Submit Review"):
+    st.success("Thank you for your review!")
+
+st.subheader("Receive Future Updates")
+
+email = st.text_input(
+    "Enter your email:",
+    placeholder="example@domain.com"
+)
+
+if st.button("Submit Email"):
+    if email:
+        st.success("Thank you! You will receive future updates.")
+    else:
+        st.warning("Please enter a valid email address.")
