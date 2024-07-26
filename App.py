@@ -147,21 +147,3 @@ else:
             </script>
             """, unsafe_allow_html=True
         )
-
-# Additional Streamlit components as needed
-background_color = st.color_picker("Pick a background color", "#ffffff")
-st.write("You selected:", background_color)
-
-# Change the background color of the entire app and text
-st.markdown(
-    f"""
-    <style>
-    .css-1d391kg {{
-        background-color: {background_color};
-    }}
-    .css-1v0mbdj {{
-        color: {background_color};
-    }}
-    </style>
-    """, unsafe_allow_html=True
-)
