@@ -45,7 +45,7 @@ st.title("Football Win Streaks")
 
 # Sidebar for mode selection using buttons
 st.sidebar.header("Select Mode")
-mode = st.sidebar.radio("", ["1 team", "team vs. team"])
+mode = st.sidebar.radio("Mode:", ["1 team", "team vs. team"], label_visibility="collapsed")
 
 # Define team options
 team_options = {
@@ -61,7 +61,7 @@ def display_success_box():
     success_box.empty()
 
 if mode == "1 team":
-    selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
+    selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0, label_visibility="collapsed")
     season_year = st.date_input("Select a season year:", datetime.now()).year
 
     team_id = team_options.get(selected_team)
@@ -78,8 +78,8 @@ if mode == "1 team":
         st.subheader("Win Streak Over Time")
         st.line_chart(win_streak_data)
 else:
-    selected_team_1 = st.selectbox("Select the first team:", list(team_options.keys()), index=0)
-    selected_team_2 = st.selectbox("Select the second team:", list(team_options.keys()), index=1)
+    selected_team_1 = st.selectbox("Select the first team:", list(team_options.keys()), index=0, label_visibility="collapsed")
+    selected_team_2 = st.selectbox("Select the second team:", list(team_options.keys()), index=1, label_visibility="collapsed")
     season_year = st.date_input("Select a season year:", datetime.now()).year
 
     team_id_1 = team_options.get(selected_team_1)
