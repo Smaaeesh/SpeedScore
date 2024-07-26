@@ -190,15 +190,18 @@ st.subheader("Customize Background Color")
 # Color picker
 background_color = st.color_picker("Pick a background color", "#ffffff")
 
-# Apply background color to a square box
+# Apply background color to a large square box behind all content
 st.markdown(
     f"""
     <style>
     .color-box {{
-        width: 200px;
-        height: 200px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background-color: {background_color};
-        border: 1px solid black;
+        z-index: -1;
     }}
     </style>
     """, unsafe_allow_html=True
