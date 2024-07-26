@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import random
 from datetime import datetime
+import time
 
 # Function to simulate win streak data
 def get_win_streak_data(team_id, season_year):
@@ -75,6 +76,12 @@ team_options = {
     'RB Leipzig': 3
 }
 
+def display_success_box():
+    success_box = st.empty()
+    success_box.success("Team(s) selected successfully!", icon="✅")
+    time.sleep(5)
+    success_box.empty()
+
 if mode == "1 team":
     selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
     season_year = st.date_input("Select a season year:", datetime.now()).year
@@ -82,6 +89,7 @@ if mode == "1 team":
     team_id = team_options.get(selected_team)
 
     if team_id:
+        display_success_box()
         win_streak_data = get_win_streak_data(team_id, season_year)
         
         # Display the DataFrame to check its contents
@@ -99,29 +107,4 @@ else:
     team_id_1 = team_options.get(selected_team_1)
     team_id_2 = team_options.get(selected_team_2)
 
-    if team_id_1 and team_id_2:
-        win_streak_data_1 = get_win_streak_data(team_id_1, season_year)
-        win_streak_data_2 = get_win_streak_data(team_id_2, season_year)
-        
-        # Display the DataFrames to check their contents
-        st.write("Win Streak Data for Team 1:")
-        st.dataframe(win_streak_data_1)
-        
-        st.write("Win Streak Data for Team 2:")
-        st.dataframe(win_streak_data_2)
-        
-        # Plot the data side by side
-        st.subheader("Win Streak Over Time")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.line_chart(win_streak_data_1, width=350, height=250)
-            st.markdown(f"**{selected_team_1} Win Streak**")
-        
-        with col2:
-            st.line_chart(win_streak_data_2, width=350, height=250)
-            st.markdown(f"**{selected_team_2} Win Streak**")
-
-# Additional Streamlit components as needed
-background_color = st.color_picker("Pick a background color", "#ffffff")
-st.write("You selected:", background_color)
+    if team_i
