@@ -82,6 +82,37 @@ def display_success_box():
     time.sleep(5)
     success_box.empty()
 
+# Background color picker
+st.subheader("Customize Background and Text Color")
+
+# Color picker
+background_color = st.color_picker("Pick a background color", "#ffffff")
+text_color = st.color_picker("Pick a text color", "#000000")
+
+# Apply background color and text color to the page
+st.markdown(
+    f"""
+    <style>
+    .color-box {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: {background_color} !important;
+        z-index: -1;
+        pointer-events: none;
+    }}
+    .text-color {{
+        color: {text_color} !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True
+)
+
+# Display the color box
+st.markdown('<div class="color-box"></div>', unsafe_allow_html=True)
+
 if mode == "1 team":
     selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
     season_year = st.date_input("Select a season year:", datetime.now()).year
@@ -93,11 +124,11 @@ if mode == "1 team":
         win_streak_data = get_win_streak_data(team_id, season_year)
         
         # Display the DataFrame to check its contents
-        st.write("Win Streak Data:")
+        st.write("Win Streak Data:", key="win-streak-data", unsafe_allow_html=True)
         st.dataframe(win_streak_data)
         
         # Plot the data
-        st.subheader("Win Streak Over Time")
+        st.subheader("Win Streak Over Time", key="win-streak-over-time", unsafe_allow_html=True)
         st.line_chart(win_streak_data)
 else:
     selected_team_1 = st.selectbox("Select the first team:", list(team_options.keys()), index=0)
@@ -113,26 +144,26 @@ else:
         win_streak_data_2 = get_win_streak_data(team_id_2, season_year)
         
         # Display the DataFrames to check their contents
-        st.write("Win Streak Data for Team 1:")
+        st.write("Win Streak Data for Team 1:", key="team1-win-streak-data", unsafe_allow_html=True)
         st.dataframe(win_streak_data_1)
         
-        st.write("Win Streak Data for Team 2:")
+        st.write("Win Streak Data for Team 2:", key="team2-win-streak-data", unsafe_allow_html=True)
         st.dataframe(win_streak_data_2)
         
         # Plot the data side by side
-        st.subheader("Win Streak Over Time")
+        st.subheader("Win Streak Over Time", key="team-vs-team-win-streak-over-time", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         
         with col1:
             st.line_chart(win_streak_data_1, width=350, height=250)
-            st.markdown(f"**{selected_team_1} Win Streak**")
+            st.markdown(f"**{selected_team_1} Win Streak**", unsafe_allow_html=True)
         
         with col2:
             st.line_chart(win_streak_data_2, width=350, height=250)
-            st.markdown(f"**{selected_team_2} Win Streak**")
+            st.markdown(f"**{selected_team_2} Win Streak**", unsafe_allow_html=True)
         
         # Create an interactive table
-        st.subheader("Interactive Results Table")
+        st.subheader("Interactive Results Table", key="interactive-results-table", unsafe_allow_html=True)
         
         # Combine data for the table
         table_data = pd.DataFrame({
@@ -171,7 +202,7 @@ else:
         )
 
 # Additional Streamlit components for user feedback
-st.subheader("Leave Your Feedback")
+st.subheader("Leave Your Feedback", key="leave-feedback", unsafe_allow_html=True)
 
 # Slider for rating
 rating = st.slider("Rate us (1-10):", min_value=1, max_value=10, step=1)
@@ -183,30 +214,3 @@ review = st.text_area("Write your review:")
 if st.button("Submit Feedback"):
     st.write(f"**Rating:** {rating}")
     st.write(f"**Review:** {review}")
-
-# Background color picker
-st.subheader("Customize Background Color")
-
-# Color picker
-background_color = st.color_picker("Pick a background color", "#ffffff")
-
-# Apply background color to a large square box behind all content
-st.markdown(
-    f"""
-    <style>
-    .color-box {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: {background_color} !important;
-        z-index: -1;
-        pointer-events: none;
-    }}
-    </style>
-    """, unsafe_allow_html=True
-)
-
-# Display the color box
-st.markdown('<div class="color-box"></div>', unsafe_allow_html=True)
