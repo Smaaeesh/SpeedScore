@@ -35,47 +35,52 @@ def get_teams():
         return {}
 
 # Function to get win streak data for a specific team
-def get_win_streak_data(team_id, season_year):
-    url = f"{base_url}teams/{team_id}/matches?season={season_year}"
-    headers = {"X-Auth-Token": api_key}
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        matches = data.get('matches', [])
-        
-        if matches:
-            dates = [pd.to_datetime(match['utcDate']) for match in matches]
-            
-            # Handle NoneType values
-            results = [
-                1 if (match['score']['fullTime'].get('home', 0) or 0) > (match['score']['fullTime'].get('away', 0) or 0)
-                else 0
-                for match in matches
-            ]
-            
-            win_streaks = []
-            current_streak = 0
-            for result in results:
-                if result == 1:
-                    current_streak += 1
-                else:
-                    win_streaks.append(current_streak)
-                    current_streak = 0
-            win_streaks.append(current_streak)  # Append final streak
-            
-            # Ensure all arrays are the same length
-            if len(dates) != len(win_streaks):
-                dates = dates[:len(win_streaks)]  # Truncate dates to match length of win_streaks
+import pandas as pd
+import random
+from datetime import datetime
 
-            return pd.DataFrame({
-                'Date': dates,
-                'Streak': win_streaks
-            }).set_index('Date')
-        else:
-            return pd.DataFrame(columns=['Date', 'Streak'])
-    else:
-        st.error("Failed to fetch win streak data from API.")
-        return pd.DataFrame(columns=['Date', 'Streak'])
+def get_win_streak_data(team_id, season_year):
+    # Simulating API data for now
+    matches = [
+        {'utcDate': '2023-01-15T12:00:00Z', 'score': {'fullTime': {'home': random.choice([1, None]), 'away': random.choice([1, None])}}},
+        {'utcDate': '2023-02-20T15:00:00Z', 'score': {'fullTime': {'home': random.choice([1, None]), 'away': random.choice([1, None])}}},
+        # Add more simulated match data as needed
+    ]
+
+    if matches:
+        dates = [pd.to_datetime(match['utcDate']) for match in matches]
+        results = [
+            1 if match['score']['fullTime'].get('home', 0) > match['score']['fullTime'].get('away', 0) else
+            0 if match['score']['fullTime'].get('home', 0) < match['score']['fullTime'].get('away', 0) else
+            0.5
+            for match in matches
+        ]
+        
+        win_streaks = []
+        current_streak = 0
+        
+        for result in results:
+            if result == 1:
+                current_streak += 1
+            else:
+                current_streak = 0
+            win_streaks.append(current_streak)
+
+        # Print lengths for debugging
+        print(f"Length of dates: {len(dates)}")
+        print(f"Length of win_streaks: {len(win_streaks)}")
+        
+        if len(dates) != len(win_streaks):
+            min_length = min(len(dates), len(win_streaks))
+            dates = dates[:min_length]
+            win_streaks = win_streaks[:min_length]
+
+        return pd.DataFrame({
+            'Date': dates,
+            'Streak': win_streaks
+        }).set_index('Date')
+    
+    return pd.DataFrame(columns=['Date', 'Streak']).set_index('Date')
 
 # Sidebar for team selection
 team_options = get_teams()
