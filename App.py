@@ -63,12 +63,14 @@ def get_win_streak_data(team_id, season_year):
 # Streamlit app setup
 st.set_page_config(page_title="Football Win Streaks", page_icon="⚽️")
 
-# Sidebar setup
+st.title("Football Win Streaks")
+
+# Sidebar for mode selection using buttons
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("", ["1 team", "team vs. team"])
 
-# Add image to sidebar
-st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Soccer_ball.svg/1200px-Soccer_ball.svg.png", width=150)
+# Add large soccer emoji to the sidebar
+st.sidebar.markdown("## ⚽️")
 
 # Get team options from API or other source
 team_options = {
@@ -83,49 +85,6 @@ def display_success_box():
     time.sleep(5)
     success_box.empty()
 
-# Background color picker
-st.subheader("Customize Background and Text Color")
-
-# Color picker
-background_color = st.color_picker("Pick a background color", "#ffffff")
-text_color = st.color_picker("Pick a text color", "#000000")
-
-# Apply background color and text color to the page
-st.markdown(
-    f"""
-    <style>
-    .color-box {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: {background_color} !important;
-        z-index: -1;
-        pointer-events: none;
-    }}
-    .text-color {{
-        color: {text_color} !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True
-)
-
-# Display the color box
-st.markdown('<div class="color-box"></div>', unsafe_allow_html=True)
-
-# Apply text color to all main headers and elements
-st.markdown(
-    f"""
-    <style>
-    h1, h2, h3, p {{
-        color: {text_color} !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True
-)
-
-# Main content
 if mode == "1 team":
     selected_team = st.selectbox("Select a team:", list(team_options.keys()), index=0)
     season_year = st.date_input("Select a season year:", datetime.now()).year
@@ -137,11 +96,11 @@ if mode == "1 team":
         win_streak_data = get_win_streak_data(team_id, season_year)
         
         # Display the DataFrame to check its contents
-        st.write("Win Streak Data:", key="win-streak-data", unsafe_allow_html=True)
+        st.write("Win Streak Data:")
         st.dataframe(win_streak_data)
         
         # Plot the data
-        st.subheader("Win Streak Over Time", key="win-streak-over-time", unsafe_allow_html=True)
+        st.subheader("Win Streak Over Time")
         st.line_chart(win_streak_data)
 else:
     selected_team_1 = st.selectbox("Select the first team:", list(team_options.keys()), index=0)
@@ -157,26 +116,26 @@ else:
         win_streak_data_2 = get_win_streak_data(team_id_2, season_year)
         
         # Display the DataFrames to check their contents
-        st.write("Win Streak Data for Team 1:", key="team1-win-streak-data", unsafe_allow_html=True)
+        st.write("Win Streak Data for Team 1:")
         st.dataframe(win_streak_data_1)
         
-        st.write("Win Streak Data for Team 2:", key="team2-win-streak-data", unsafe_allow_html=True)
+        st.write("Win Streak Data for Team 2:")
         st.dataframe(win_streak_data_2)
         
         # Plot the data side by side
-        st.subheader("Win Streak Over Time", key="team-vs-team-win-streak-over-time", unsafe_allow_html=True)
+        st.subheader("Win Streak Over Time")
         col1, col2 = st.columns(2)
         
         with col1:
             st.line_chart(win_streak_data_1, width=350, height=250)
-            st.markdown(f"**{selected_team_1} Win Streak**", unsafe_allow_html=True)
+            st.markdown(f"**{selected_team_1} Win Streak**")
         
         with col2:
             st.line_chart(win_streak_data_2, width=350, height=250)
-            st.markdown(f"**{selected_team_2} Win Streak**", unsafe_allow_html=True)
+            st.markdown(f"**{selected_team_2} Win Streak**")
         
         # Create an interactive table
-        st.subheader("Interactive Results Table", key="interactive-results-table", unsafe_allow_html=True)
+        st.subheader("Interactive Results Table")
         
         # Combine data for the table
         table_data = pd.DataFrame({
@@ -214,16 +173,21 @@ else:
             """, unsafe_allow_html=True
         )
 
-# Additional Streamlit components for user feedback
-st.subheader("Leave Your Feedback", key="leave-feedback", unsafe_allow_html=True)
+# Background color and text color control
+bg_color = st.color_picker("Pick a background color", "#ffffff")
+text_color = st.color_picker("Pick a text color", "#000000")
 
-# Slider for rating
-rating = st.slider("Rate us (1-10):", min_value=1, max_value=10, step=1)
+st.markdown(f"""
+    <style>
+    .reportview-container {{
+        background-color: {bg_color};
+    }}
+    .css-18e3th9 {{
+        color: {text_color};
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
-# Textbox for review
-review = st.text_area("Write your review:")
-
-# Display the feedback
-if st.button("Submit Feedback"):
-    st.write(f"**Rating:** {rating}")
-    st.write(f"**Review:** {review}")
+# Additional Streamlit components as needed
+st.write("You selected background color:", bg_color)
+st.write("You selected text color:", text_color)
