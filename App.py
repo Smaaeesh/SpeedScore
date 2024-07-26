@@ -69,9 +69,6 @@ st.title("Football Win Streaks")
 st.sidebar.header("Select Mode")
 mode = st.sidebar.radio("", ["1 team", "team vs. team"])
 
-# Remove the soccer ball emojis
-# Sidebar content without emojis
-st.sidebar.markdown("## ⚽️ Soccer Stats")
 
 def display_success_box():
     success_box = st.empty()
