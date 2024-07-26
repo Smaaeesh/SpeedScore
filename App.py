@@ -156,8 +156,7 @@ rating = st.slider(
     "Rating (1 to 10):",
     min_value=1,
     max_value=10,
-    value=5,
-    format="Rating: %d 😭 - 😍 %d 😍"
+    value=5
 )
 
 # Text box for review
@@ -168,5 +167,5 @@ review = st.text_area(
 )
 
 # Display the review and rating (you can remove this in production)
-st.write(f"Rating: {rating} 😭 - 😍 {rating} 😍")
+st.write(f"Rating: {rating}")
 st.write(f"Review: {review}")
