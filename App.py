@@ -83,27 +83,9 @@ if team_id:
     st.write("Win Streak Data:")
     st.dataframe(win_streak_data)
     
-    # Plot the data using pydeck
+    # Plot the data using line_chart
     st.subheader("Win Streak Over Time")
-    
-    st.pydeck_chart(pdk.Deck(
-        initial_view_state=pdk.ViewState(
-            latitude=37.76,
-            longitude=-122.4,
-            zoom=11,
-            pitch=50,
-        ),
-        layers=[
-            pdk.Layer(
-                'LineLayer',
-                data=win_streak_data.reset_index(),
-                get_source_position='[Date, Streak]',
-                get_target_position='[Date, Streak]',
-                get_color='[200, 30, 0, 160]',
-                get_width=5,
-            ),
-        ],
-    ))
+    st.line_chart(win_streak_data)
 
 # Additional Streamlit components as needed
 background_color = st.color_picker("Pick a background color", "#ffffff")
