@@ -148,3 +148,25 @@ else:
             """, unsafe_allow_html=True
         )
 
+# Review section
+st.subheader("Leave a Review")
+
+# Slider for rating
+rating = st.slider(
+    "Rating (1 to 10):",
+    min_value=1,
+    max_value=10,
+    value=5,
+    format="Rating: %d 😭 - 😍 %d 😍"
+)
+
+# Text box for review
+review = st.text_area(
+    "Your Review:",
+    placeholder="Write your review here...",
+    height=200
+)
+
+# Display the review and rating (you can remove this in production)
+st.write(f"Rating: {rating} 😭 - 😍 {rating} 😍")
+st.write(f"Review: {review}")
