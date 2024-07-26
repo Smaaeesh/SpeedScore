@@ -14,25 +14,30 @@ st.sidebar.markdown(
     """
     <style>
     .soccer-ball {
-        font-size: 100px;
+        font-size: 100px; /* Adjust size as needed */
         display: inline-block;
-        position: relative;
+        position: absolute;
         z-index: 1;
     }
+    .soccer-ball:nth-of-type(1) {
+        top: 0px;
+        left: 0px;
+        z-index: 3;
+    }
     .soccer-ball:nth-of-type(2) {
-        top: -50px;
-        left: 50px;
-        z-index: 0;
+        top: 20px;
+        left: 20px;
+        z-index: 2;
     }
     .soccer-ball:nth-of-type(3) {
-        top: -100px;
-        left: 100px;
-        z-index: -1;
+        top: 40px;
+        left: 40px;
+        z-index: 1;
     }
     .soccer-ball:nth-of-type(4) {
-        top: -150px;
-        left: 150px;
-        z-index: -2;
+        top: 60px;
+        left: 60px;
+        z-index: 0;
     }
     </style>
     """, unsafe_allow_html=True
@@ -41,10 +46,12 @@ st.sidebar.markdown(
 # Insert multiple soccer ball emojis with different positioning
 st.sidebar.markdown(
     """
-    <div class="soccer-ball">⚽️</div>
-    <div class="soccer-ball">⚽️</div>
-    <div class="soccer-ball">⚽️</div>
-    <div class="soccer-ball">⚽️</div>
+    <div style="position: relative;">
+        <div class="soccer-ball">⚽️</div>
+        <div class="soccer-ball">⚽️</div>
+        <div class="soccer-ball">⚽️</div>
+        <div class="soccer-ball">⚽️</div>
+    </div>
     """, unsafe_allow_html=True
 )
 
